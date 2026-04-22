@@ -1,0 +1,16 @@
+{
+  "expo": {
+    "name": "mern-devsuite",
+    "slug": "mern-devsuite",
+    "scheme": "devsuite",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": { "supportsTablet": true, "bundleIdentifier": "com.theruka.devsuite" },
+    "android": { "package": "com.theruka.devsuite" },
+    "web": { "bundler": "metro" },
+    "plugins": ["expo-router"],
+    "experiments": { "typedRoutes": true }
+  }
+}
