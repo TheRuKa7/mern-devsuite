@@ -1,0 +1,32 @@
+{
+  "name": "mern-devsuite",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Production-ready MERN template with auth, payments, multi-tenancy, observability, and compliance layer",
+  "author": "Rushil Kaul <theruka007@outlook.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TheRuKa7/mern-devsuite"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck"
+  },
+  "packageManager": "pnpm@9.12.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.0",
+    "typescript": "^5.7.0",
+    "@types/node": "^22.0.0"
+  }
+}
