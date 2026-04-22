@@ -6,12 +6,22 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
-  test:
+  lint-and-test:
+    name: Lint, typecheck, test
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         node: ["22", "24"]
+    env:
+      # The API reads these at startup via zod — stubs are fine for CI.
+      AUTH_SECRET: ci-test-secret-at-least-sixteen-chars
+      NODE_ENV: test
+      LOG_LEVEL: fatal
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -21,7 +31,17 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
           cache: "pnpm"
-      - run: pnpm install --frozen-lockfile || pnpm install
-      - run: pnpm typecheck
-      - run: pnpm lint || true  # enabled after eslint config ships in P1
-      - run: pnpm test || true
+
+      # `--frozen-lockfile` is the right default for CI; drop to the
+      # fallback only on the first run after the scaffold lands.
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Test
+        run: pnpm test

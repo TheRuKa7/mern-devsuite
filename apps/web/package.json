@@ -10,20 +10,29 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@mern-devsuite/shared": "workspace:*",
+    "@mern-devsuite/ui": "workspace:*",
     "next": "^15.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "next-auth": "5.0.0-beta.25",
     "@auth/mongodb-adapter": "^3.7.0",
     "mongodb": "^6.10.0",
+    "mongoose": "^8.8.0",
+    "bcryptjs": "^2.4.3",
     "zod": "^3.23.0",
-    "stripe": "^17.0.0"
+    "jose": "^5.9.0"
   },
   "devDependencies": {
+    "@mern-devsuite/config": "workspace:*",
     "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
     "@types/node": "^22.0.0",
+    "@types/bcryptjs": "^2.4.6",
     "typescript": "^5.7.0",
     "tailwindcss": "^4.0.0",
-    "postcss": "^8.4.0"
+    "@tailwindcss/postcss": "^4.0.0",
+    "postcss": "^8.4.0",
+    "autoprefixer": "^10.4.0"
   }
 }
