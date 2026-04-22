@@ -116,7 +116,10 @@ authRouter.post("/verify", async (req: Request, res: Response) => {
       .json({ error: { code: "unauthorized", message: "invalid credentials" } });
     return;
   }
-  const ok = await bcrypt.compare(parsed.password, user.passwordHash);
+  const ok = await bcrypt.compare(
+    parsed.password,
+    user.passwordHash as string,
+  );
   if (!ok) {
     await appendAudit({
       actorId: user._id as never,

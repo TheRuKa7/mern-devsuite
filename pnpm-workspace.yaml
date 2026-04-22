@@ -1,0 +1,12 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+  # `apps/mobile` is a scaffold-only stretch goal. Expo 52 pins
+  # `@types/react@18`, which clashes with Next 15 + Auth.js v5 (React 19).
+  # Co-installing both lands two copies of React types in the pnpm
+  # store, and TypeScript can't decide which `React.ReactNode` to use
+  # across the UI package boundary. Excluding mobile from the workspace
+  # keeps the web + api line green; when we ship mobile we'll revisit
+  # either (a) pinning Expo SDK 53+ (which supports React 19) or (b)
+  # splitting the UI package into web-only / rn-only entry points.
+  - "!apps/mobile"

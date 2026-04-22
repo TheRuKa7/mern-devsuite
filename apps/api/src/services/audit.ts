@@ -47,6 +47,27 @@ export interface AuditInput {
   userAgent?: string | null;
 }
 
+/**
+ * Shape returned by `.lean()` over AuditModel. Mongoose's inferred lean
+ * type widens to `FlattenMaps<unknown>` in our setup (the `metadata:
+ * Mixed` field defeats inference), so we pin it explicitly here and
+ * pass it as the `.lean<T>()` generic at call sites.
+ */
+interface AuditLean {
+  seq: number;
+  actorId?: Types.ObjectId | string | null;
+  workspaceId?: Types.ObjectId | string | null;
+  action: string;
+  resource: string;
+  resourceId?: string | null;
+  metadata?: Record<string, unknown>;
+  ip?: string | null;
+  userAgent?: string | null;
+  prevHash: string;
+  hash: string;
+  createdAt: Date;
+}
+
 // Stable JSON: recursively sort keys so the canonical form is
 // deterministic. Nested objects get the same treatment. Arrays keep
 // their order (order is semantically meaningful for ordered data).
@@ -87,7 +108,10 @@ function serialize<T>(fn: () => Promise<T>): Promise<T> {
 
 export async function appendAudit(input: AuditInput) {
   return serialize(async () => {
-    const last = await AuditModel.findOne().sort({ seq: -1 }).lean().exec();
+    const last = await AuditModel.findOne()
+      .sort({ seq: -1 })
+      .lean<AuditLean | null>()
+      .exec();
     const seq = (last?.seq ?? -1) + 1;
     const prevHash = last?.hash ?? GENESIS;
     const createdAt = new Date();
@@ -119,10 +143,13 @@ export interface ChainVerification {
 
 /** Walk the chain and return the first break, or ok=true. */
 export async function verifyChain(): Promise<ChainVerification> {
-  const cursor = AuditModel.find().sort({ seq: 1 }).lean().cursor();
+  const cursor = AuditModel.find()
+    .sort({ seq: 1 })
+    .lean<AuditLean>()
+    .cursor();
   let prevHash = GENESIS;
   let checked = 0;
-  for await (const ev of cursor) {
+  for await (const ev of cursor as AsyncIterable<AuditLean>) {
     const expectedPrev = prevHash;
     if (ev.prevHash !== expectedPrev) {
       return {

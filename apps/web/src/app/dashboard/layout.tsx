@@ -8,11 +8,15 @@ import { redirect } from "next/navigation";
 import { auth, signOut } from "@/auth";
 import { Button } from "@mern-devsuite/ui";
 
+// Explicit return type: the workspace has two `@types/react` major
+// versions in the pnpm store (the mobile app pins 18 via expo/RN),
+// so the inferred `JSX.Element` references a non-portable path. The
+// annotation sidesteps that without forcing a types/react dedupe.
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
-}) {
+}): Promise<React.ReactElement> {
   const session = await auth();
   if (!session?.user) redirect("/sign-in?callbackUrl=/dashboard");
 

@@ -53,7 +53,9 @@ projectsRouter.post("/", async (req: ScopedRequest, res: Response) => {
 });
 
 projectsRouter.patch("/:id", async (req: ScopedRequest, res: Response) => {
-  if (!Types.ObjectId.isValid(req.params.id ?? "")) {
+  const projectId =
+    typeof req.params.id === "string" ? req.params.id : "";
+  if (!Types.ObjectId.isValid(projectId)) {
     res
       .status(400)
       .json({ error: { code: "bad_request", message: "invalid id" } });
@@ -61,7 +63,7 @@ projectsRouter.patch("/:id", async (req: ScopedRequest, res: Response) => {
   }
   const parsed = UpdateProjectInput.parse(req.body);
   const project = await ProjectModel.findOneAndUpdate(
-    { _id: req.params.id, workspaceId: req.workspaceId },
+    { _id: projectId, workspaceId: req.workspaceId },
     { $set: parsed },
     { new: true },
   ).exec();
@@ -83,14 +85,16 @@ projectsRouter.patch("/:id", async (req: ScopedRequest, res: Response) => {
 });
 
 projectsRouter.delete("/:id", requireWorkspace("admin"), async (req: ScopedRequest, res: Response) => {
-  if (!Types.ObjectId.isValid(req.params.id ?? "")) {
+  const projectId =
+    typeof req.params.id === "string" ? req.params.id : "";
+  if (!Types.ObjectId.isValid(projectId)) {
     res
       .status(400)
       .json({ error: { code: "bad_request", message: "invalid id" } });
     return;
   }
   const project = await ProjectModel.findOneAndDelete({
-    _id: req.params.id,
+    _id: projectId,
     workspaceId: req.workspaceId,
   }).exec();
   if (!project) {

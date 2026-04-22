@@ -37,7 +37,11 @@ export function requireWorkspace(minRole: Role = "member") {
       res.status(401).json({ error: { code: "unauthorized", message: "no user" } });
       return;
     }
-    const wsId = req.params.workspaceId;
+    // Express 5 params can in theory be string | string[] (the type
+    // shape covers repeated wildcards); our routes never use that, so
+    // narrow explicitly and reject anything weird.
+    const rawWsId = req.params.workspaceId;
+    const wsId = typeof rawWsId === "string" ? rawWsId : null;
     if (!wsId || !Types.ObjectId.isValid(wsId)) {
       res
         .status(400)
@@ -46,8 +50,10 @@ export function requireWorkspace(minRole: Role = "member") {
     }
 
     const [workspace, membership] = await Promise.all([
-      WorkspaceModel.findById(wsId).lean().exec(),
-      MembershipModel.findOne({ userId, workspaceId: wsId }).lean().exec(),
+      WorkspaceModel.findById(wsId).lean<{ _id: unknown } | null>().exec(),
+      MembershipModel.findOne({ userId, workspaceId: wsId })
+        .lean<{ role: Role } | null>()
+        .exec(),
     ]);
     if (!workspace) {
       res
@@ -63,7 +69,7 @@ export function requireWorkspace(minRole: Role = "member") {
         .json({ error: { code: "not_found", message: "workspace not found" } });
       return;
     }
-    if (RANK[membership.role as Role] < RANK[minRole]) {
+    if (RANK[membership.role] < RANK[minRole]) {
       res.status(403).json({
         error: {
           code: "forbidden",
@@ -73,7 +79,7 @@ export function requireWorkspace(minRole: Role = "member") {
       return;
     }
     req.workspaceId = String(workspace._id);
-    req.role = membership.role as Role;
+    req.role = membership.role;
     next();
   };
 }

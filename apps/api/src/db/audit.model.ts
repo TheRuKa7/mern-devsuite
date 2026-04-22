@@ -40,8 +40,8 @@ const AuditSchemaDef = new Schema(
     toJSON: {
       virtuals: true,
       versionKey: false,
-      transform: (_doc, ret) => {
-        ret.id = ret._id?.toString();
+      transform: (_doc, ret: Record<string, unknown>) => {
+        ret.id = (ret._id as { toString(): string } | undefined)?.toString();
         delete ret._id;
         return ret;
       },

@@ -6,6 +6,11 @@
  * This file exists only to own the process lifecycle: DB connection,
  * HTTP listener, signal handling, unhandled-rejection logging.
  */
+// Load .env BEFORE any module that reads process.env at import time.
+// `env.ts` in particular reads + validates immediately, so dotenv
+// has to run first or we'd hit a phantom "AUTH_SECRET missing".
+import "dotenv/config";
+
 import { createApp } from "./app.js";
 import { connectDatabase, disconnectDatabase } from "./db/connection.js";
 import { env } from "./env.js";

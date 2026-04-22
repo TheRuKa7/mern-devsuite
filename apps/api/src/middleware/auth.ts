@@ -79,7 +79,14 @@ export async function requireAuth(
 
     // Look the user up — we don't trust the token beyond identity.
     // If the account was deleted during the session's lifetime, reject.
-    const user = await UserModel.findById(sub).lean().exec();
+    const user = await UserModel.findById(sub)
+      .lean<{
+        _id: unknown;
+        email: string;
+        name?: string | null;
+        deletedAt?: Date | null;
+      }>()
+      .exec();
     if (!user || user.deletedAt) {
       unauth(res, "user not found or deleted", "forbidden");
       return;

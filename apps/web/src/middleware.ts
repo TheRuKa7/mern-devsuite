@@ -1,12 +1,18 @@
 /**
- * Next.js middleware — runs on every request to guard protected
- * routes. We delegate to the `authorized` callback in `auth.ts`, which
- * checks the session cookie and returns a boolean.
+ * Next.js middleware — runs on every request (Edge runtime) to guard
+ * protected routes. We delegate to the `authorized` callback defined
+ * in `auth.config.ts`, which is the edge-safe subset (no Mongo driver,
+ * no bcrypt). The full Node-side `auth` lives in `auth.ts` and must
+ * not be imported here — bundling MongoDB into middleware fails with
+ * an `UnhandledSchemeError: node:process` from webpack.
  *
  * Matcher excludes static assets, API routes, and the auth endpoints
  * themselves — those must not redirect.
  */
-export { auth as middleware } from "@/auth";
+import NextAuth from "next-auth";
+import { authConfig } from "@/auth.config";
+
+export const { auth: middleware } = NextAuth(authConfig);
 
 export const config = {
   matcher: [
